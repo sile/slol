@@ -52,7 +52,7 @@ NORMAL:
   ret i8 %c
 
 EOS:
-  store i1 1, i1* %in.eos_p
+  store i1 true, i1* %in.eos_p
   ret i8 0
 }
 
@@ -71,3 +71,37 @@ define void @out.write(i8 %c) {
   call i32 @putchar(i8 %c)
   ret void
 }
+
+; (deftype file (* opaque))
+; (deftype stream (struct src$file prev$i8 eos$i1))
+
+; (defvar stdin (external global file))
+; (defvar stdout (external global file))
+; (defvar eos (internal constant i32 -1))
+
+; (declare getc (file) i32)
+; (declare ungetc (i32 file) i32)
+; (declare putchar (i8) i32)
+
+; (define in.init (in$(* stream))$void
+;   (set (in src) (deref stdin))
+;   (set (in prev) 0)
+;   (set (in eos) 0)
+;   (return void))
+
+; (define in.eos (in$(* stream))$i1
+;   (return (deref (in eos))))
+
+; (define in.read (in$(* stream))$i8
+;   (let ((ret (call getc (in src))))
+;     (if (icmp eq ret eos)
+;         (progn
+;           (set (in prev) (trunc ret i8))
+;           (return (trunc ret i8)))
+;       (progn
+;         (setf (in eos) 1)
+;         (return 0)))))
+
+; (define in.unread (in$(* stream))$void
+;   (call ungetc (zext (in prev) i32) (in src))
+;   (return))
