@@ -1,32 +1,49 @@
-;;;; ファイル名: parse-sexp.ll
+;;;; ファイル名: object.ll
 ;;;;
-;;;; [概要]
-;;;; - 標準入力からS式を読み込む
-;;;; - XXX形式で標準出力に出力する
+;;;; [説明]
+;;;;
 
-%FILE = type opaque*
-%STREAM = type {%FILE, i8, i1}
+include(`type.inc')
+include(`global.inc')
 
-;declare void @in.init(%STREAM* %in) 
-;declare i1 @in.eos(%STREAM* %in)
-;declare i8 @in.read(%STREAM* %in)
-;declare void @in.unread(%STREAM* %in)
-;declare void @out.write(i8)
+@g_ppdt = global %PPDT zeroinitializer
 
-declare i32 @llvm.objectsize.i32(i8*, i1)
+declare i32 @printf(i8*, ...)
+@PP_OBJ_MSG = internal constant _String(15) c"#<object 0x%x>\00"
 
-define i32 @main() {
-;  %in = alloca %STREAM
-;  call void @in.init(%STREAM* %in)
-  
-;  %c = call i8 @in.read(%STREAM* %in)
+@llvm.global_ctors = appending global [1 x %Ctor] [%Ctor {i32 100, void ()* @register_object_ppdf}]
 
-;  call void @out.write(i8 10)
-;  call void @out.write(i8 %c)
-;  call void @out.write(i8 10)
-
-  %beg = getelementptr %STREAM* null, i32 1
-  %size = ptrtoint %STREAM* %beg to i32 
-  ret i32 %size
+define void @register_pp_dispatch_fn(%ObjType %type, %PrintFunction %fn) {
+  %p_fn = getelementptr %PPDT* @g_ppdt, i32 0, i8 %type
+  store %PrintFunction %fn, %PrintFunction* %p_fn
+  ret void
 }
 
+define void @object_ppdf(%Object* %obj) {
+  %msg = _GetString(@PP_OBJ_MSG, 15)
+  %addr = ptrtoint %Object* %obj to i32
+  call i32 (i8*,...)* @printf(i8* %msg, i32 %addr)
+  ret void
+}
+
+define void @register_object_ppdf() {
+  call void @register_pp_dispatch_fn(i8 _OBJ_TYPE, %PrintFunction @object_ppdf)
+  ret void
+}
+
+define void @pprint(%Object* %p_obj) {
+  %p_type = getelementptr %Object* %p_obj, i32 0, i32 0
+  %type = load i8* %p_type
+  %p_fn = getelementptr %PPDT* @g_ppdt, i32 0, i8 %type
+  %fn = load %PrintFunction* %p_fn  ; XXX: assert(%p_fn==null)
+  call void %fn (%Object* %p_obj)  
+  ret void
+}
+
+define void @main() {
+  %p_obj = alloca %Object
+  %p_type = getelementptr %Object* %p_obj, i32 0, i32 0
+  store i8 _OBJ_TYPE, i8* %p_type
+  call void @pprint(%Object* %p_obj)
+  ret void
+}
