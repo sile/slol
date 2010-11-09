@@ -34,9 +34,8 @@ define void @register_number_ppdf() {
   ret void
 }
 
-
-define void @main() {
-  %p_obj = call %Object* @make_number_object(i32 98)
-  call void @pprint(%Object* %p_obj)
-  ret void
-}
+;define void @main() {
+;  %p_obj = call %Object* @make_number_object(i32 98)
+;  call void @pprint(%Object* %p_obj)
+;  ret void
+;}
