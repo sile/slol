@@ -5,7 +5,9 @@
 ;;;; - TODO: global.incに併合する?
 
 %ObjType = type i8
-%Object = type {%ObjType, opaque*}
+%Object  = type {%ObjType, opaque*}
+
+%NumberObject = type {%ObjType, i32} ; XXX: pointer size == i32 ?
 
 %PrintFunction = type void (%Object*)*
 %PrettyPrintDispatchTable = type [256 x %PrintFunction]
@@ -20,3 +22,5 @@ define(`_OP_TYPE', 3)
 
 define(`_String', `[$1 x i8]')
 define(`_GetString', `getelementptr [$2 x i8]* $1, i32 0, i32 0')
+
+define(`_SIZEOF', `ptrtoint ($1* getelementptr ($1* null, i32 1) to i32)')

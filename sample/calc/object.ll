@@ -40,10 +40,10 @@ define void @pprint(%Object* %p_obj) {
   ret void
 }
 
-define void @main() {
-  %p_obj = alloca %Object
-  %p_type = getelementptr %Object* %p_obj, i32 0, i32 0
-  store i8 _OBJ_TYPE, i8* %p_type
-  call void @pprint(%Object* %p_obj)
-  ret void
-}
+;define void @main() {
+;  %p_obj = alloca %Object
+;  %p_type = getelementptr %Object* %p_obj, i32 0, i32 0
+;  store i8 _OBJ_TYPE, i8* %p_type
+;  call void @pprint(%Object* %p_obj)
+;  ret void
+;}
