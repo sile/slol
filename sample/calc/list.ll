@@ -1,44 +1,130 @@
-;;@list.NULL = constant %CONS* null
-@list.NULL = alias %CONS* null
-@list.TYPE = constant i8 0
+;;;; ファイル名: list.ll
+;;;;
+;;;; [説明]
+;;;;
 
-%TYPE = type i8
-%ANY  = type opaque
-%CAR  = type {%TYPE, %ANY*}
-%CDR  = type %CONS*
-%CONS = type {%CAR, %CDR}
-%LIST = type %CONS*
+include(`type.inc')
+include(`global.inc')
 
-declare i8* @malloc(i32)
-declare i32 @llvm.objectsize.i32(i8*, i1)
+@list.null = constant %Cons {%ObjType _LIST_TYPE, %Car null, %Cdr @list.null}
 
-define %CAR @list.car(%LIST %list) {
-  %car_p = getelementptr %LIST %list, i32 0, i32 0
-  %car = load %CAR* %car_p
-  ret %CAR %car
+@llvm.global_ctors = appending global [1 x %Ctor] 
+                                      [%Ctor {i32 100, void ()* @register_list_ppdf}]
+
+define %Car @list.car(%Object* %list) {
+  %tmp = bitcast %Object* %list to %ListObject
+  %p_car = getelementptr %ListObject %tmp, i32 0, i32 1
+  %car = load %Car* %p_car
+  ret %Car %car
 }
 
-define %CDR @list.cdr(%LIST %list) {
-  %cdr_p = getelementptr %LIST %list, i32 0, i32 1
-  %cdr = load %CDR* %cdr_p
-  ret %CDR %cdr
+define %Object* @list.cdr(%Object* %list) {
+  %tmp = bitcast %Object* %list to %ListObject
+  %p_cdr = getelementptr %ListObject %tmp, i32 0, i32 2
+  %cdr = load %Cdr* %p_cdr
+
+  %cdrobj = bitcast %Cdr %cdr to %Object*
+  ret %Object* %cdrobj
 }
 
-define %LIST @list.cons(%CAR %obj, %LIST %list) {
-  %size = ptrtoint %CONS* getelementptr(%CONS* null, i32 1) to i32
+define %Object* @make_list_object() {
+  %p_obj = bitcast %ListObject @list.null to %Object*
+  ret %Object* %p_obj
+}
+ 
+define %Object* @list.cons(%Object* %elem, %Object* %listobj) {
+  %list = bitcast %Object* %listobj to %ListObject
+     
+  %mem = call i8* @malloc(i32 _SIZEOF(%Cons))
+  %p_cons = bitcast i8* %mem to %Cons*
 
-  %opaq = call i8* @malloc(i32 %size)
-  %cons = bitcast i8* %opaq to %CONS*
+  %p_type = getelementptr %Cons* %p_cons, i32 0, i32 0
+  %p_car  = getelementptr %Cons* %p_cons, i32 0, i32 1
+  %p_cdr  = getelementptr %Cons* %p_cons, i32 0, i32 2
 
-  %car_p = getelementptr %CONS* %cons, i32 0, i32 0
-  %cdr_p = getelementptr %CONS* %cons, i32 0, i32 1
-
-  store %CAR %obj, %CAR* %car_p
-  store %CDR %list, %CDR* %cdr_p
-
-  ret %LIST %cons
+  store %ObjType _LIST_TYPE, %ObjType* %p_type
+  store %Car %elem, %Car* %p_car
+  store %Cdr %list, %Cdr* %p_cdr
+ 
+  %newlistobj = bitcast %ListObject %p_cons to %Object*
+  ret %Object* %newlistobj
 }
 
-define i32 @main() {
-   ret i32 0
+define void @list_ppdf(%Object* %listobj) {
+  %list = bitcast %Object* %listobj to %ListObject
+  call void @out.write_char(i8 40)
+  call void @list_print_elements(%ListObject %list, i1 1)
+  call void @out.write_char(i8 41)
+  ret void
+}
+
+define void @list_print_elements(%ListObject %list, i1 %is_first) {
+  %i_null = ptrtoint %ListObject @list.null to i64
+  %i_list = ptrtoint %ListObject %list to i64
+
+  %ret = icmp eq i64 %i_null, %i_list
+  br i1 %ret, label %NULL, label %CONS
+  
+NULL:
+  ret void
+
+CONS:
+  br i1 %is_first, label %PRINT_ELEM, label %PRINT_DELIM
+
+PRINT_DELIM:
+  call void @out.write_char(i8 32)
+  br label %PRINT_ELEM
+
+PRINT_ELEM:   
+  %listobj = bitcast %ListObject %list to %Object*
+        
+  %car = call %Car @list.car(%Object* %listobj)
+  call void @pprint(%Object* %car)
+
+  %cdrobj = call %Object* @list.cdr(%Object* %listobj)
+  %cdr = bitcast %Object* %cdrobj to %Cdr
+  call void @list_print_elements(%ListObject %cdr, i1 0)
+
+  ret void
+}
+
+define %Object* @list.reverse(%Object* %listobj) {
+  %empty = call %Object* @make_list_object()
+  %rev = call %Object* @list.reverse_impl(%Object* %listobj, %Object* %empty)
+  ret %Object* %rev
+}
+
+define %Object* @list.reverse_impl(%Object* %listobj, %Object* %revlist) {
+  %i_null = ptrtoint %ListObject @list.null to i64
+  %i_list = ptrtoint %Object* %listobj to i64
+
+  %ret = icmp eq i64 %i_null, %i_list
+  br i1 %ret, label %NULL, label %CONS
+
+NULL:
+  ret %Object* %revlist
+
+CONS:
+  %elem = call %Car @list.car(%Object* %listobj)
+  %rest = call %Object* @list.cdr(%Object* %listobj)
+
+  %revlist2 = call %Object* @list.cons(%Object* %elem, %Object* %revlist)
+  %revlist3 = call %Object* @list.reverse_impl(%Object* %rest, %Object* %revlist2)
+  ret %Object* %revlist3
+}
+
+define void @register_list_ppdf() {
+  call void @register_pp_dispatch_fn(i8 _LIST_TYPE, %PrintFunction @list_ppdf)
+  ret void
+}
+
+define void @main() {
+  %p_obj = call %Object* @make_list_object()
+  %numobj = call %Object* @make_number_object(i32 22)
+  %p_obj2 = call %Object* @list.cons(%Object* %numobj, %Object* %p_obj)
+  %p_obj3 = call %Object* @list.cons(%Object* %numobj, %Object* %p_obj2)
+  %p_obj4 = call %Object* @list.cons(%Object* %p_obj2, %Object* %p_obj3)
+  %p_obj5 = call %Object* @list.reverse(%Object* %p_obj4)
+  call void @pprint(%Object* %p_obj5)
+  ret void
 }

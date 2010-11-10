@@ -14,3 +14,13 @@ declare void @free(i8*)
 
 declare void @register_pp_dispatch_fn(i8, %PrintFunction)
 declare void @pprint(%Object*)
+
+declare %Object* @make_number_object(i32)
+declare %Object* @make_operator_object(i32)
+declare %Object* @make_list_object()
+
+declare %Object* @list.cons(%Object*, %Object*)
+declare %Object* @list.car(%Object*)
+declare %Object* @list.cdr(%Object*)
+declare %Object* @list.reverse(%Object*)
+

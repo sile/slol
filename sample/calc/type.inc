@@ -7,8 +7,13 @@
 %ObjType = type i8
 %Object  = type {%ObjType, opaque*}
 
-%NumberObject = type {%ObjType, i32} ; XXX: pointer size == i32 ?
+%NumberObject = type {%ObjType, i32} 
 %OperatorObject = type {%ObjType, i32}
+
+%Car = type %Object*
+%Cdr = type %Cons*
+%Cons= type {%ObjType, %Car, %Cdr}
+%ListObject = type %Cons*
 
 %PrintFunction = type void (%Object*)*
 %PrettyPrintDispatchTable = type [256 x %PrintFunction]
