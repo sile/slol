@@ -8,6 +8,7 @@
 %Object  = type {%ObjType, opaque*}
 
 %NumberObject = type {%ObjType, i32} ; XXX: pointer size == i32 ?
+%OperatorObject = type {%ObjType, i32}
 
 %PrintFunction = type void (%Object*)*
 %PrettyPrintDispatchTable = type [256 x %PrintFunction]
@@ -24,3 +25,8 @@ define(`_String', `[$1 x i8]')
 define(`_GetString', `getelementptr [$2 x i8]* $1, i32 0, i32 0')
 
 define(`_SIZEOF', `ptrtoint ($1* getelementptr ($1* null, i32 1) to i32)')
+
+define(`_OP_ADD', 0)
+define(`_OP_SUB', 1)
+define(`_OP_MUL', 2)
+define(`_OP_DIV', 3)
