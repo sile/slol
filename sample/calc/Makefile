@@ -8,9 +8,7 @@ INC=$(wildcard *.inc)
 	m4 $< | llvm-as -o $@
 
 all: $(BC) $(INC)
-
-calc: calc.bc $(BC)
-	llvm-link -o calc.bc $(BC)
+	llvm-link -o calc $(BC)
 
 clean:
 	rm -f *.bc

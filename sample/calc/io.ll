@@ -68,6 +68,12 @@ define i8 @in.read_char() {
   ret i8 %c
 }
 
+define i8 @in.peek_char() {
+  %c = call i8 @in.read_char()
+  call void @in.unread_char()
+  ret i8 %c
+}
+
 define i1 @in.eof() {
   %ch = load i32* @cur_ch
   %ret = icmp eq i32 %ch, _EOF

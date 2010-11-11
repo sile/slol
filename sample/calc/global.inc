@@ -17,13 +17,19 @@ declare void @pprint(%Object*)
 
 declare %Object* @make_number_object(i32)
 declare %Object* @make_operator_object(i32)
+declare %Object* @make_operator_object_from_char(i8)
 declare %Object* @make_list_object()
 
 declare %Object* @list.cons(%Object*, %Object*)
 declare %Object* @list.car(%Object*)
 declare %Object* @list.cdr(%Object*)
 declare %Object* @list.reverse(%Object*)
+declare i1 @list.is_empty(%Object*)
 
 declare i8 @in.read_char()
+declare i8 @in.peek_char()
 declare void @in.unread_char()
 declare i1 @in.eof()
+
+declare %Object* @parse()
+declare i32 @eval_exp(%Object*)

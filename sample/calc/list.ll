@@ -50,6 +50,12 @@ define %Object* @list.cons(%Object* %elem, %Object* %listobj) {
   ret %Object* %newlistobj
 }
 
+define i1 @list.is_empty(%Object* %listobj) {
+  %p_null = bitcast %ListObject @list.null to %Object*
+  %empty = icmp eq %Object* %p_null, %listobj
+  ret i1 %empty
+}
+
 define void @list_ppdf(%Object* %listobj) {
   %list = bitcast %Object* %listobj to %ListObject
   call void @out.write_char(i8 40)
