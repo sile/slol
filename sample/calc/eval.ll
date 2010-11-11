@@ -37,7 +37,7 @@ define i32 @eval_list(%Object* %exp) {
   %exp2 = call %Object* @list.cdr(%Object* %exp)
   %car2 = call %Object* @list.car(%Object* %exp2)
 
-  %first_num = call i32 @eval_exp(%Object* %exp2)
+  %first_num = call i32 @eval_exp(%Object* %car2)
   %exp3 = call %Object* @list.cdr(%Object* %exp2)
 
   %num = call i32 @reduce(%OpFn %fn, i32 %first_num, %Object* %exp3)
@@ -107,11 +107,10 @@ define i32 @div_fn(i32 %a, i32 %b) {
   ret i32 %c
 }
 
-define i32 @main() {
-  %obj = call %Object* @parse()
-  %rlt = call i32 @eval_exp(%Object* %obj)
-;  call void @pprint(%Object* %obj)
-  call void @out.write_int(i32 %rlt)
-  call void @out.newline()
-  ret i32 0
-}
+;define i32 @main() {
+;  %obj = call %Object* @parse()
+;  %rlt = call i32 @eval_exp(%Object* %obj)
+;  call void @out.write_int(i32 %rlt)
+;  call void @out.newline()
+;  ret i32 0
+;}
