@@ -50,3 +50,59 @@ define void @out.write_int(i32 %n) {
   ret void
 }
 
+
+;;;; input
+%File = type opaque*
+@stdin  = external global %File
+@cur_ch = internal global i32 0
+
+declare i32 @ungetc(i32, %File)
+declare i32 @getc(%File)
+
+define i8 @in.read_char() {
+  %stdin = load %File* @stdin
+  %ch = call i32 @getc(%File %stdin)
+  store i32 %ch, i32* @cur_ch
+  
+  %c = trunc i32 %ch to i8
+  ret i8 %c
+}
+
+define i1 @in.eof() {
+  %ch = load i32* @cur_ch
+  %ret = icmp eq i32 %ch, _EOF
+  br i1 %ret, label %EOF, label %NORMAL
+
+EOF:
+  ret i1 true
+
+NORMAL:
+  ret i1 false
+}
+
+define void @in.unread_char() {
+ %ch = load i32* @cur_ch
+ %stdin = load %File* @stdin 
+ call i32 @ungetc(i32 %ch, %File %stdin)
+ ret void
+}
+
+; define i32 @main() {
+; HEAD:
+;   %first = call i8 @in.read_char()
+;   br label %LOOP
+
+; LOOP:
+;   %ch = phi i8 [%first, %HEAD],
+;                [%new_ch, %NEXT]
+;   %eof = call i1 @in.eof()
+;   br i1 %eof, label %FINISH, label %NEXT
+  
+; NEXT:
+;   call void @out.write_char(i8 %ch)
+;   %new_ch = call i8 @in.read_char()
+;   br label %LOOP
+  
+; FINISH:
+;   ret i32 0
+; }

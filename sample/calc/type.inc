@@ -35,3 +35,5 @@ define(`_OP_ADD', 0)
 define(`_OP_SUB', 1)
 define(`_OP_MUL', 2)
 define(`_OP_DIV', 3)
+
+define(`_EOF', -1)

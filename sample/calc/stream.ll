@@ -3,11 +3,10 @@
 ;;;; [概要]
 ;;;; - IOストリーム関連の操作をラッピングしたモジュール
 
-%FILE = type opaque*
+%File = type opaque*
 
-@stdin = external global %FILE
-@stdout = external global %FILE
-@EOF = internal constant i32 -1 ;external constant i32
+@STDIN = external global %File
+@EOF   = internal constant i32 -1 
 
 declare i32 @getc(%FILE)
 declare i32 @ungetc(i32, %FILE)

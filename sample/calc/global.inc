@@ -24,3 +24,6 @@ declare %Object* @list.car(%Object*)
 declare %Object* @list.cdr(%Object*)
 declare %Object* @list.reverse(%Object*)
 
+declare i8 @in.read_char()
+declare void @in.unread_char()
+declare i1 @in.eof()

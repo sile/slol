@@ -118,13 +118,13 @@ define void @register_list_ppdf() {
   ret void
 }
 
-define void @main() {
-  %p_obj = call %Object* @make_list_object()
-  %numobj = call %Object* @make_number_object(i32 22)
-  %p_obj2 = call %Object* @list.cons(%Object* %numobj, %Object* %p_obj)
-  %p_obj3 = call %Object* @list.cons(%Object* %numobj, %Object* %p_obj2)
-  %p_obj4 = call %Object* @list.cons(%Object* %p_obj2, %Object* %p_obj3)
-  %p_obj5 = call %Object* @list.reverse(%Object* %p_obj4)
-  call void @pprint(%Object* %p_obj5)
-  ret void
-}
+; define void @main() {
+;   %p_obj = call %Object* @make_list_object()
+;   %numobj = call %Object* @make_number_object(i32 22)
+;   %p_obj2 = call %Object* @list.cons(%Object* %numobj, %Object* %p_obj)
+;   %p_obj3 = call %Object* @list.cons(%Object* %numobj, %Object* %p_obj2)
+;   %p_obj4 = call %Object* @list.cons(%Object* %p_obj2, %Object* %p_obj3)
+;   %p_obj5 = call %Object* @list.reverse(%Object* %p_obj4)
+;   call void @pprint(%Object* %p_obj5)
+;   ret void
+; }
